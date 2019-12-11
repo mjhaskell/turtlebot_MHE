@@ -24,7 +24,7 @@ enum
 typedef Eigen::Vector3d Pose;
 typedef Eigen::Vector2d Input;
 typedef Eigen::Matrix<double, 2, NUM_LANDMARKS> Meas;
-typedef Eigen::Matrix<double, TIME_HORIZON, NUM_LANDMARKS> Zidx;
+typedef Eigen::Matrix<bool, TIME_HORIZON, NUM_LANDMARKS> Zidx;
 
 class MHE
 {

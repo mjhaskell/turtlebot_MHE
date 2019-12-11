@@ -3,12 +3,12 @@ project(turtlebot_MHE)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED 1)
 
-find_package(catkin REQUIRED COMPONENTS roscpp std_msgs rospy)
+find_package(catkin REQUIRED COMPONENTS roscpp std_msgs nav_msgs aruco_localization)
 find_package(Eigen3 REQUIRED)
 
 catkin_package(
     INCLUDE_DIRS include
-    CATKIN_DEPENDS roscpp std_msgs rospy
+    CATKIN_DEPENDS roscpp std_msgs nav_msgs aruco_localization
     )
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}
