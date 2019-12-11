@@ -24,6 +24,7 @@ private:
     std::map<int, int> id2idx_;
     Meas z_cur_;
     Zidx z_idx_;
+    MHE mhe_;
 };
 
 #endif // MHE_NODE_H
