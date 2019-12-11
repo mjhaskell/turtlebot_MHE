@@ -26,10 +26,11 @@ MHENode::~MHENode()
 void MHENode::measCallback(const aruco_localization::MarkerMeasurementArrayConstPtr &msg)
 {
     z_idx_.setZero();
+    // TODO: shift rows up and set last row to 0
     for (auto const& pose : msg->poses)
     {
         int idx{id2idx_[pose.aruco_id]};
-        z_idx_(idx) = true;
+        z_idx_(TIME_HORIZON-1, idx) = true;
         z_cur_.col(idx) << pose.position.x, pose.position.y; // TODO: fix this
     }
 }
@@ -48,9 +49,9 @@ void MHENode::odomCallback(const nav_msgs::OdometryConstPtr &msg)
 
     Pose odom;
     odom << msg->pose.pose.position.x,
-             msg->pose.pose.position.y,
-             msg->pose.pose.orientation.z; // TODO: fix orientation
+            msg->pose.pose.position.y,
+            msg->pose.pose.orientation.z; // TODO: fix orientation
 
-    mhe_.update(odom, z_cur_, z_idx_, INPUTS, dt);  // TODO: what are inputs?
+//    mhe_.update(odom, z_cur_, z_idx_, INPUTS, dt);  // TODO: what are inputs?
 }
 

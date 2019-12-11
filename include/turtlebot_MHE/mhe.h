@@ -4,7 +4,7 @@
 #include <Eigen/Core>
 #include <vector>
 #define TIME_HORIZON 5
-#define NUM_LANDMARKS 11
+#define NUM_LANDMARKS 9
 
 using namespace Eigen;
 
