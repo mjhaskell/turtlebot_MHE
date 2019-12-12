@@ -26,6 +26,30 @@ protected:
 
 };
 
+struct MeasurementResidual
+{
+public:
+    MeasurementResidual(const Eigen::Vector2d &z, const Eigen::Matrix2d &R): z_{z}
+    {
+        xi_ = R.inverse().llt().matrixL();
+    }
+
+    template<typename T>
+    bool operator()(const T* const x, T* residual)
+    {
+        Eigen::Map<const Eigen::Matrix<T,3,1>> pose(x);
+        Eigen::Map<Eigen::Matrix<T,2,1>> res(residual);
+        Eigen::Matrix<T,2,1> z_hat{h(pose)};
+        
+        res = (z_ - z_hat) * xi_;
+        return true;
+    }
+
+protected:
+    Eigen::Vector2d z_;
+    Eigen::Matrix3d xi_;
+};
+
 double wrap(double angle)
 {
     static double pi{3.14159};
@@ -66,7 +90,7 @@ struct Pose
         out.theta = wrap(theta + other.theta);
         return out;
     }
-
+        Eigen::Matrix2d R_inv = R.inverse();
     Pose& operator +=(const Pose& other)
     {
         x = x + other.x;
