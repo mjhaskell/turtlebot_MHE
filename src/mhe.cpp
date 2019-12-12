@@ -22,7 +22,9 @@ public:
     {
         Eigen::Map<const Eigen::Matrix<T,3,1>> pose(x);
         Eigen::Map<Eigen::Matrix<T,1,3>> res(residual);
-        res = (x_ - pose) * xi_;
+        Eigen::Matrix<T,3,1> temp{x_ - pose};
+        temp(2) = wrap(temp(2));
+        res = temp.transpose() * xi_;
         return true;
     }
 protected:
@@ -48,8 +50,10 @@ public:
         T phi = wrap(atan2(pose(1) - lm_(1), pose(0) - lm_(0)) - pose(2)); 
         Eigen::Matrix<T,2,1> z_hat;
         z_hat << range, phi;
+        Eigen::Matrix<T, 2, 1> temp{z_ - z_hat};
+        temp(1) = wrap(temp(1));
         
-        res = (z_ - z_hat) * xi_;
+        res = temp.transpose() * xi_;
         return true;
     }
 
@@ -111,8 +115,8 @@ void MHE::optimize()
     int i = std::max(0, int(pose_hist_.size() - TIME_HORIZON));
     for(i; i < pose_hist_.size(); ++i)
     {
-        // PoseCostFunction *cost_function{new PoseCostFunction(new PoseResidual(pose_hist_[i], Omega_))};
-        // problem.AddResidualBlock(cost_function, NULL, pose_hist_[i].data());
+        PoseCostFunction *cost_function{new PoseCostFunction(new PoseResidual(pose_hist_[i], Omega_))};
+        problem.AddResidualBlock(cost_function, NULL, pose_hist_[i].data());
     }
 
     //set up measurement residuals
@@ -124,8 +128,8 @@ void MHE::optimize()
         {
             if(z_ind_(counter,j))
             {
-                // MeasurementCostFunction *cost_function{new MeasurementCostFunction(new MeasurementResidual(z_hist_[i].col(j), Eigen::Vector2d::Zero(), R_inv_))};
-                // problem.AddResidualBlock(cost_function, NULL, pose_hist_[i].data());
+                MeasurementCostFunction *cost_function{new MeasurementCostFunction(new MeasurementResidual(z_hist_[i].col(j), Eigen::Vector2d::Zero(), R_inv_))};
+                problem.AddResidualBlock(cost_function, NULL, pose_hist_[i].data());
             }
         }
         ++counter;
