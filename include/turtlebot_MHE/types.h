@@ -3,6 +3,15 @@
 
 #include <Eigen/Core>
 #include <ceres/ceres.h>
+#include <cmath>
+
+template<typename T>
+T wrap(T angle)
+{
+    static double pi{3.14159};
+    angle -= 2*pi * floor((angle+pi) * 0.5/pi);
+    return angle;
+}
 
 struct PoseResidual
 {
@@ -29,9 +38,9 @@ protected:
 struct MeasurementResidual
 {
 public:
-    MeasurementResidual(const Eigen::Vector2d &z, const Eigen::Matrix2d &R): z_{z}
+    MeasurementResidual(const Eigen::Vector2d &z, const Eigen::Matrix2d &R_inv): z_{z}
     {
-        xi_ = R.inverse().llt().matrixL();
+        xi_ = R.llt().matrixL();
     }
 
     template<typename T>
@@ -39,7 +48,10 @@ public:
     {
         Eigen::Map<const Eigen::Matrix<T,3,1>> pose(x);
         Eigen::Map<Eigen::Matrix<T,2,1>> res(residual);
-        Eigen::Matrix<T,2,1> z_hat{h(pose)};
+        T range = pose.norm();
+        T phi = wrap(atan2(pose(1), pose(0)) - pose(2)); //Need to wrap this
+        Eigen::Matrix<T,2,1> z_hat;
+        z_hat << range, phi;
         
         res = (z_ - z_hat) * xi_;
         return true;
@@ -49,13 +61,6 @@ protected:
     Eigen::Vector2d z_;
     Eigen::Matrix3d xi_;
 };
-
-double wrap(double angle)
-{
-    static double pi{3.14159};
-    angle -= 2*pi * floor((angle+pi) * 0.5/pi);
-    return angle;
-}
 
 struct Pose
 {

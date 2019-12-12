@@ -1,6 +1,11 @@
 #include "turtlebot_MHE/mhe.h"
+#include "turtlebot_MHE/types.h"
+#include <ceres/ceres.h>
 
-double wrap(double angle)
+typedef ceres::AutoDiffCostFunction<PoseResidual,3,3> PoseCostFunction;
+typedef ceres::AutoDiffCostFunction<MeasurementResidual, 2, 2> MeasurementCostFunction;
+
+double wrap(double angle) //this is in types.h I don't think we need it here
 {
     static double pi{3.14159};
     angle -= 2*pi * floor((angle+pi) * 0.5/pi);
@@ -44,7 +49,31 @@ void MHE::update(const Pose &mu, const Meas &z, const Zidx& idx, const Input &u,
 
 void MHE::optimize()
 {
+    ceres::Problem problem;
 
+    //set up position residuals
+    int i = max(0, pose_hist_.size() - TIME_HORIZON);
+    for(i; i < pose_hist_.size(); ++i)
+    {
+        PoseCostFunction *cost_function{new PoseCostFunction(new PoseResidual(pose_hist[i], Omega_))};
+        problem.AddResidualBlock(cost_function, NULL, pose_hist_[i].data());
+    }
+
+    //set up measurement residuals
+    i = max(0, z_hist_.size() - TIME_HORIZON);
+    for(i; i < z_hist_.size(); ++i) // May need nested for loops for this one. One for the index and then one for each measurement at that index
+    {
+    }
+
+    //setup options and solve
+    ceres::Solver::Options options;
+    options.minimizer_progress_to_stdout = false;
+    options.max_num_iterations = 50;
+    options.gradient_tolerance = 1e-8;
+    options.function_tolerance = 1e-8;
+    options.linear_solver_type = ceres::SPARSE_NORMAL_CHOLESKY;
+    ceres::Solver::Summary summary;
+    ceres::Solve(options, &problem, &summary);
 }
 
 } // namespace mhe
