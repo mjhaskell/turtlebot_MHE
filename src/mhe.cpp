@@ -79,11 +79,11 @@ MHE::MHE()
 
 MHE::~MHE()
 {
-    std::ofstream file;
-    file.open("/tmp/MHE_outputs.txt");
-    for (Pose pose : pose_hist_)
-        file << pose.transpose() << std::endl;
-    file.close();
+    // std::ofstream file;
+    // file.open("/tmp/MHE_outputs.txt");
+    // for (Pose pose : pose_hist_)
+    //     file << pose.transpose() << std::endl;
+    // file.close();
 }
 
 void MHE::setParams(const Eigen::Vector3d &omega, double sig_r, double sig_phi)
@@ -156,5 +156,14 @@ void MHE::optimize()
 void MHE::initializeLandmark(int index, const Eigen::Vector2d &lm)
 {
     lms_.col(index) = lm;
+}
+
+void MHE::writeFile()
+{
+    std::ofstream file;
+    file.open("/tmp/MHE_outputs.txt");
+    for (Pose pose : pose_hist_)
+        file << pose.transpose() << std::endl;
+    file.close();
 }
 } // namespace mhe

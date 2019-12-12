@@ -47,6 +47,7 @@ MHENode::MHENode() :
     aruco_5_sub_ = nh_.subscribe("ArUco_5_ned", 1, &MHENode::aruco5Callback, this);
     aruco_64_sub_ = nh_.subscribe("ArUco_64_ned", 1, &MHENode::aruco64Callback, this);
     aruco_76_sub_ = nh_.subscribe("ArUco_76_ned", 1, &MHENode::aruco76Callback, this);
+    file_flag_sub_ = nh_.subscribe("writeFile", 1, &MHENode::fileFlagCallback, this);
 //    pub_ = nh_.advertise<std_msgs::Bool>("topic", 1);
 }
 
@@ -197,4 +198,9 @@ void MHENode::aruco76Callback(const geometry_msgs::PoseStampedConstPtr& msg)
     estimator_.initializeLandmark(idx, lm);
     lm_init_[76] = true;
     }
+}
+
+void MHENode::fileFlagCallback(const std_msgs::BoolConstPtr& msg)
+{
+    estimator_.writeFile();
 }

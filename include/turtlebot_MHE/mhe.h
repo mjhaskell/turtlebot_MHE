@@ -37,6 +37,7 @@ public:
     void update(const Pose& mu, const Meas& z, const Zidx& idx, const Input& u, double dt);
     void optimize();
     void initializeLandmark(int index, const Eigen::Vector2d &lm);
+    void writeFile();
 
 private:
     std::vector<Pose> pose_hist_;
