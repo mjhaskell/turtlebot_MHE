@@ -30,8 +30,9 @@ typedef Eigen::Matrix<bool, TIME_HORIZON, NUM_LANDMARKS> Zidx;
 class MHE
 {
 public:
-    MHE(const Eigen::Vector3d& omega, double sig_r, double sig_phi);
+    MHE();
     virtual ~MHE();
+    void setParams(const Eigen::Vector3d& omega, double sig_r, double sig_phi);
     Pose propagateState(const Pose& state, const Input& u, double dt);
     void update(const Pose& mu, const Meas& z, const Zidx& idx, const Input& u, double dt);
     void optimize();

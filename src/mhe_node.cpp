@@ -24,7 +24,7 @@ MHENode::MHENode() :
     Eigen::Vector3d Omega{x,y,theta};
     double sig_r{nh_private_.param<double>("sigma_r", 0.35)};
     double sig_phi{nh_private_.param<double>("sigma_phi", 0.07)};
-    estimator_ = mhe::MHE{Omega, sig_r, sig_phi};
+    estimator_.setParams(Omega, sig_r, sig_phi);
 
     meas_sub_ = nh_.subscribe("aruco/measurements", 1, &MHENode::measCallback, this);
     odom_sub_ = nh_.subscribe("odom", 1, &MHENode::odomCallback, this);
