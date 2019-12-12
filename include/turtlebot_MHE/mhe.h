@@ -6,7 +6,8 @@
 #define TIME_HORIZON 5
 #define NUM_LANDMARKS 9
 
-using namespace Eigen;
+namespace mhe
+{
 
 enum
 {
@@ -29,22 +30,21 @@ typedef Eigen::Matrix<bool, TIME_HORIZON, NUM_LANDMARKS> Zidx;
 class MHE
 {
 public:
-    MHE();
+    MHE(const Eigen::Vector3d& omega, double sig_r, double sig_phi);
     virtual ~MHE();
-    Vector3d propagateState(const Pose& state, const Input& u, double dt);
+    Pose propagateState(const Pose& state, const Input& u, double dt);
     void update(const Pose& mu, const Meas& z, const Zidx& idx, const Input& u, double dt);
     void optimize();
 
-    std::vector<Vector3d> pose_hist_;
-    std::vector<Matrix<double, 2, NUM_LANDMARKS>> z_hist_;
-//    Matrix<double, 3, Dynamic> pose_hist_;
-//    Matrix<double, 2, Dynamic> z_hist_;
-    Matrix<double, TIME_HORIZON, NUM_LANDMARKS> z_ind_;
 private:
-//    unsigned long N_;
-    Eigen::Matrix3d R_inv_;
+    std::vector<Pose> pose_hist_;
+    std::vector<Meas> z_hist_;
+    Zidx z_ind_;
+    Eigen::Matrix2d R_inv_;
     Eigen::Matrix3d Omega_;
 };
+
+} // namespace mhe
 
 #endif // MHE_H 
 

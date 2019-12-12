@@ -18,14 +18,15 @@ protected:
 
 private:
     ros::NodeHandle nh_;
+    ros::NodeHandle nh_private_;
     ros::Subscriber meas_sub_;
     ros::Subscriber odom_sub_;
 //    ros::Publisher est_pub_;
     std::map<int, int> id2idx_;
-    MHE mhe_;
-    Meas z_cur_;
-    Zidx z_idx_;
-    Pose odom_;
+    mhe::MHE estimator_;
+    mhe::Meas z_cur_;
+    mhe::Zidx z_idx_;
+    mhe::Pose odom_;
 };
 
 #endif // MHE_NODE_H

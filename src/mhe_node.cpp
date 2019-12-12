@@ -1,7 +1,9 @@
 #include "turtlebot_MHE/mhe_node.h"
 
-MHENode::MHENode()
+MHENode::MHENode() :
+    nh_private_("~")
 {
+    z_cur_.setZero();
     z_idx_.setZero();
     odom_.setZero();
 
@@ -15,9 +17,17 @@ MHENode::MHENode()
     id2idx_[245] = 7;
     id2idx_[248] = 8;
 
+    double x,y,theta;
+    x = nh_private_.param<double>("Omega_x", 1e3);
+    y = nh_private_.param<double>("Omega_x", 1e3);
+    theta = nh_private_.param<double>("Omega_x", 0.5e3);
+    Eigen::Vector3d Omega{x,y,theta};
+    double sig_r{nh_private_.param<double>("sigma_r", 0.35)};
+    double sig_phi{nh_private_.param<double>("sigma_phi", 0.07)};
+    estimator_ = mhe::MHE{Omega, sig_r, sig_phi};
+
     meas_sub_ = nh_.subscribe("aruco/measurements", 1, &MHENode::measCallback, this);
     odom_sub_ = nh_.subscribe("odom", 1, &MHENode::odomCallback, this);
-
 //    pub_ = nh_.advertise<std_msgs::Bool>("topic", 1);
 }
 
@@ -37,7 +47,7 @@ void MHENode::measCallback(const aruco_localization::MarkerMeasurementArrayConst
     {
         int idx{id2idx_[pose.aruco_id]};
         z_idx_(TIME_HORIZON-1, idx) = true;
-        Pose pt{pose.position.x, pose.position.y, pose.position.z};
+        mhe::Pose pt{pose.position.x, pose.position.y, pose.position.z};
         z_cur_.col(idx) << pt.norm(), atan2(pt(0), pt(2));
     }
 }
@@ -58,8 +68,8 @@ void MHENode::odomCallback(const nav_msgs::OdometryConstPtr &msg)
              msg->pose.pose.position.y,
              asin(msg->pose.pose.orientation.z) * 2;
 
-    Input u_odom{msg->twist.twist.linear.x, msg->twist.twist.angular.z};
+    mhe::Input u_odom{msg->twist.twist.linear.x, msg->twist.twist.angular.z};
 
-    mhe_.update(odom_, z_cur_, z_idx_, u_odom, dt);
+    estimator_.update(odom_, z_cur_, z_idx_, u_odom, dt);
 }
 

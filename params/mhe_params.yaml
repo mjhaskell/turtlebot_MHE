@@ -1,0 +1,6 @@
+mhe:
+    Omega_x: 1.e3
+    Omega_y: 1.e3
+    Omega_theta: 0.5e3
+    sigma_r: 0.35
+    sigma_phi: 0.07

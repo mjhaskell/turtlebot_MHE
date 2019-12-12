@@ -7,9 +7,13 @@ double wrap(double angle)
     return angle;
 }
 
-MHE::MHE()
+namespace mhe
 {
 
+MHE::MHE(const Eigen::Vector3d& omega, double sig_r, double sig_phi)
+{
+    Omega_ = omega.asDiagonal();
+    R_inv_ = Eigen::Vector2d{1/(sig_r*sig_r),1/(sig_phi*sig_phi)}.asDiagonal();
 }
 
 MHE::~MHE()
@@ -17,11 +21,11 @@ MHE::~MHE()
 
 }
 
-Vector3d MHE::propagateState(const Pose &state, const Input &u, double dt)
+Pose MHE::propagateState(const Pose &state, const Input &u, double dt)
 {
     double st{sin(state(THETA))};
     double ct{cos(state(THETA))};
-    Vector3d out;
+    Pose out;
     out(X) = u(V) * ct * dt;
     out(Y) = u(V) * st * dt;
     out(THETA) = wrap(u(W) * dt);
@@ -43,3 +47,4 @@ void MHE::optimize()
 
 }
 
+} // namespace mhe
