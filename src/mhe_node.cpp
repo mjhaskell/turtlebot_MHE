@@ -17,6 +17,16 @@ MHENode::MHENode() :
     id2idx_[245] = 7;
     id2idx_[248] = 8;
 
+    lm_init_[5] = false;
+    lm_init_[55] = false;
+    lm_init_[64] = false;
+    lm_init_[76] = false;
+    lm_init_[110] = false;
+    lm_init_[121] = false;
+    lm_init_[245] = false;
+    lm_init_[248] = false;
+    lm_init_[25] = false;
+
     double x,y,theta;
     x = nh_private_.param<double>("Omega_x", 1e3);
     y = nh_private_.param<double>("Omega_x", 1e3);
@@ -28,6 +38,15 @@ MHENode::MHENode() :
 
     meas_sub_ = nh_.subscribe("aruco/measurements", 1, &MHENode::measCallback, this);
     odom_sub_ = nh_.subscribe("odom", 1, &MHENode::odomCallback, this);
+    aruco_110_sub_ = nh_.subscribe("ArUco_110_ned", 1, &MHENode::aruco110Callback, this);
+    aruco_121_sub_ = nh_.subscribe("ArUco_121_ned", 1, &MHENode::aruco121Callback, this);
+    aruco_245_sub_ = nh_.subscribe("ArUco_245_ned", 1, &MHENode::aruco245Callback, this);
+    aruco_248_sub_ = nh_.subscribe("ArUco_248_ned", 1, &MHENode::aruco248Callback, this);
+    aruco_25_sub_ = nh_.subscribe("ArUco_25_ned", 1, &MHENode::aruco25Callback, this);
+    aruco_55_sub_ = nh_.subscribe("ArUco_55_ned", 1, &MHENode::aruco55Callback, this);
+    aruco_5_sub_ = nh_.subscribe("ArUco_5_ned", 1, &MHENode::aruco5Callback, this);
+    aruco_64_sub_ = nh_.subscribe("ArUco_64_ned", 1, &MHENode::aruco64Callback, this);
+    aruco_76_sub_ = nh_.subscribe("ArUco_76_ned", 1, &MHENode::aruco76Callback, this);
 //    pub_ = nh_.advertise<std_msgs::Bool>("topic", 1);
 }
 
@@ -73,3 +92,109 @@ void MHENode::odomCallback(const nav_msgs::OdometryConstPtr &msg)
     estimator_.update(odom_, z_cur_, z_idx_, u_odom, dt);
 }
 
+void MHENode::aruco110Callback(const geometry_msgs::PoseStampedConstPtr& msg)
+{
+    if(!lm_init_[110])
+    {
+    Eigen::Vector2d lm;
+    lm << msg->pose.position.x, msg->pose.position.x;
+    int idx = id2idx_[110];
+    estimator_.initializeLandmark(idx, lm);
+    lm_init_[110] = true;
+    }
+}
+
+void MHENode::aruco121Callback(const geometry_msgs::PoseStampedConstPtr& msg)
+{
+    if(!lm_init_[121])
+    {
+    Eigen::Vector2d lm;
+    lm << msg->pose.position.x, msg->pose.position.x;
+    int idx = id2idx_[121];
+    estimator_.initializeLandmark(idx, lm);
+    lm_init_[121] = true;
+    }
+}
+
+void MHENode::aruco245Callback(const geometry_msgs::PoseStampedConstPtr& msg)
+{
+    if(!lm_init_[245])
+    {
+    Eigen::Vector2d lm;
+    lm << msg->pose.position.x, msg->pose.position.x;
+    int idx = id2idx_[245];
+    estimator_.initializeLandmark(idx, lm);
+    lm_init_[245] = true;
+    }
+}
+
+void MHENode::aruco248Callback(const geometry_msgs::PoseStampedConstPtr& msg)
+{
+    if(!lm_init_[248])
+    {
+    Eigen::Vector2d lm;
+    lm << msg->pose.position.x, msg->pose.position.x;
+    int idx = id2idx_[248];
+    estimator_.initializeLandmark(idx, lm);
+    lm_init_[248] = true;
+    }
+}
+
+void MHENode::aruco25Callback(const geometry_msgs::PoseStampedConstPtr& msg)
+{
+    if(!lm_init_[25])
+    {
+    Eigen::Vector2d lm;
+    lm << msg->pose.position.x, msg->pose.position.x;
+    int idx = id2idx_[25];
+    estimator_.initializeLandmark(idx, lm);
+    lm_init_[25] = true;
+    }
+}
+
+void MHENode::aruco55Callback(const geometry_msgs::PoseStampedConstPtr& msg)
+{
+    if(!lm_init_[55])
+    {
+    Eigen::Vector2d lm;
+    lm << msg->pose.position.x, msg->pose.position.x;
+    int idx = id2idx_[55];
+    estimator_.initializeLandmark(idx, lm);
+    lm_init_[55] = true;
+    }
+}
+
+void MHENode::aruco5Callback(const geometry_msgs::PoseStampedConstPtr& msg)
+{
+    if(!lm_init_[5])
+    {
+    Eigen::Vector2d lm;
+    lm << msg->pose.position.x, msg->pose.position.x;
+    int idx = id2idx_[5];
+    estimator_.initializeLandmark(idx, lm);
+    lm_init_[5] = true;
+    }
+}
+void MHENode::aruco64Callback(const geometry_msgs::PoseStampedConstPtr& msg)
+{
+    if(!lm_init_[64])
+    {
+    Eigen::Vector2d lm;
+    lm << msg->pose.position.x, msg->pose.position.x;
+    int idx = id2idx_[64];
+    estimator_.initializeLandmark(idx, lm);
+    lm_init_[64] = true;
+    }
+}
+
+void MHENode::aruco76Callback(const geometry_msgs::PoseStampedConstPtr& msg)
+{
+    if(!lm_init_[76])
+    {
+    Eigen::Vector2d lm;
+    lm << msg->pose.position.x, msg->pose.position.x;
+    int idx = id2idx_[76];
+    estimator_.initializeLandmark(idx, lm);
+    lm_init_[76] = true;
+    }
+}

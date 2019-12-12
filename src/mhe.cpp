@@ -73,6 +73,7 @@ MHE::MHE()
     // set default parameters
     Omega_ = Eigen::Vector3d{1, 1, 0.5}.asDiagonal();
     R_inv_ = Eigen::Vector2d{1/0.35, 1/0.07}.asDiagonal();
+    lms_ = Meas::Zero();
 }
 
 MHE::~MHE()
@@ -128,6 +129,7 @@ void MHE::optimize()
         {
             if(z_ind_(counter,j))
             {
+                //Need the true landmark locations to be stored somewhere
                 MeasurementCostFunction *cost_function{new MeasurementCostFunction(new MeasurementResidual(z_hist_[i].col(j), Eigen::Vector2d::Zero(), R_inv_))};
                 problem.AddResidualBlock(cost_function, NULL, pose_hist_[i].data());
             }
@@ -146,4 +148,8 @@ void MHE::optimize()
     ceres::Solve(options, &problem, &summary);
 }
 
+void MHE::initializeLandmark(int index, const Eigen::Vector2d &lm)
+{
+    lms_.col(index) = lm;
+}
 } // namespace mhe

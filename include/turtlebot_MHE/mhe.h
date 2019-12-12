@@ -36,11 +36,13 @@ public:
     Pose propagateState(const Pose& state, const Input& u, double dt);
     void update(const Pose& mu, const Meas& z, const Zidx& idx, const Input& u, double dt);
     void optimize();
+    void initializeLandmark(int index, const Eigen::Vector2d &lm);
 
 private:
     std::vector<Pose> pose_hist_;
     std::vector<Meas> z_hist_;
     Zidx z_ind_;
+    Meas lms_;
     Eigen::Matrix2d R_inv_;
     Eigen::Matrix3d Omega_;
 };
