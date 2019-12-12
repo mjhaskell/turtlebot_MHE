@@ -130,7 +130,7 @@ void MHE::optimize()
             if(z_ind_(counter,j))
             {
                 //Need the true landmark locations to be stored somewhere
-                MeasurementCostFunction *cost_function{new MeasurementCostFunction(new MeasurementResidual(z_hist_[i].col(j), Eigen::Vector2d::Zero(), R_inv_))};
+                MeasurementCostFunction *cost_function{new MeasurementCostFunction(new MeasurementResidual(z_hist_[i].col(j), lms_.col(j), R_inv_))};
                 problem.AddResidualBlock(cost_function, NULL, pose_hist_[i].data());
             }
         }
