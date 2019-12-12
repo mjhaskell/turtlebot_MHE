@@ -2,6 +2,29 @@
 #define TYPES_H
 
 #include <Eigen/Core>
+#include <ceres/ceres.h>
+
+struct PoseResidual
+{
+public:
+    PoseResidual(const Eigen::Vector3d &x, const Eigen::Matrix3d &omega): x_{x}
+    {
+        xi_ = omega.llt().matrixL();
+    }
+
+    template<typename T>
+    bool operator()(const T* const x, T* residual)
+    {
+        Eigen::Map<const Eigen::Matrix<T,3,1>> pose(x);
+        Eigen::Map<Eigen::Matrix<T,1,3>> res(residual);
+        res = (x_ - pose) * xi_;
+        return true;
+    }
+protected:
+    Eigen::Vector3d x_;
+    Eigen::Matrix3d xi_;
+
+};
 
 double wrap(double angle)
 {
