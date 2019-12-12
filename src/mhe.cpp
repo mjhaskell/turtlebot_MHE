@@ -1,5 +1,6 @@
 #include "turtlebot_MHE/mhe.h"
 #include <ceres/ceres.h>
+#include <fstream>
 
 template<typename T>
 T wrap(T angle)
@@ -78,7 +79,11 @@ MHE::MHE()
 
 MHE::~MHE()
 {
-
+    std::ofstream file;
+    file.open("/tmp/MHE_outputs.txt");
+    for (Pose pose : pose_hist_)
+        file << pose.transpose() << std::endl;
+    file.close();
 }
 
 void MHE::setParams(const Eigen::Vector3d &omega, double sig_r, double sig_phi)
