@@ -30,9 +30,9 @@ Vector3d MHE::propagateState(const Pose &state, const Input &u, double dt)
 
 void MHE::update(const Pose &mu, const Meas &z, const Zidx& idx, const Input &u, double dt)
 {
-    Pose mu_bar{propagateState(mu, u, dt)};
+//    Pose mu_bar{propagateState(mu, u, dt)};
 
-    pose_hist_.push_back(mu_bar);
+    pose_hist_.push_back(mu);
     z_hist_.push_back(z);
 
     optimize();

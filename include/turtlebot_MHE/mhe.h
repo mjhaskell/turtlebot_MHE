@@ -36,10 +36,10 @@ public:
     void optimize();
 
     std::vector<Vector3d> pose_hist_;
-    std::vector<Matrix<double, 2, 11>> z_hist_;
+    std::vector<Matrix<double, 2, NUM_LANDMARKS>> z_hist_;
 //    Matrix<double, 3, Dynamic> pose_hist_;
 //    Matrix<double, 2, Dynamic> z_hist_;
-    Matrix<double, TIME_HORIZON, 11> z_ind_;
+    Matrix<double, TIME_HORIZON, NUM_LANDMARKS> z_ind_;
 private:
 //    unsigned long N_;
     Eigen::Matrix3d R_inv_;

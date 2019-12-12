@@ -2,6 +2,9 @@
 
 MHENode::MHENode()
 {
+    z_idx_.setZero();
+    odom_.setZero();
+
     id2idx_[5] = 0;
     id2idx_[25] = 1;
     id2idx_[55] = 2;
@@ -25,13 +28,17 @@ MHENode::~MHENode()
 
 void MHENode::measCallback(const aruco_localization::MarkerMeasurementArrayConstPtr &msg)
 {
-    z_idx_.setZero();
-    // TODO: shift rows up and set last row to 0
+    for (int i{0}; i < TIME_HORIZON-1; ++i)
+        z_idx_.col(i) = z_idx_.col(i+1);
+    z_idx_.col(TIME_HORIZON-1).setZero();
+
+    z_cur_.setZero();
     for (auto const& pose : msg->poses)
     {
         int idx{id2idx_[pose.aruco_id]};
         z_idx_(TIME_HORIZON-1, idx) = true;
-        z_cur_.col(idx) << pose.position.x, pose.position.y; // TODO: fix this
+        Pose pt{pose.position.x, pose.position.y, pose.position.z};
+        z_cur_.col(idx) << pt.norm(), atan2(pt(0), pt(2));
     }
 }
 
@@ -47,11 +54,12 @@ void MHENode::odomCallback(const nav_msgs::OdometryConstPtr &msg)
     double dt{now - prev_time};
     prev_time = now;
 
-    Pose odom;
-    odom << msg->pose.pose.position.x,
-            msg->pose.pose.position.y,
-            msg->pose.pose.orientation.z; // TODO: fix orientation
+    odom_ << msg->pose.pose.position.x,
+             msg->pose.pose.position.y,
+             asin(msg->pose.pose.orientation.z) * 2;
 
-//    mhe_.update(odom, z_cur_, z_idx_, INPUTS, dt);  // TODO: what are inputs?
+    Input u_odom{msg->twist.twist.linear.x, msg->twist.twist.angular.z};
+
+    mhe_.update(odom_, z_cur_, z_idx_, u_odom, dt);
 }
 
