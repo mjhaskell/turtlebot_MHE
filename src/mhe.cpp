@@ -1,9 +1,5 @@
 #include "turtlebot_MHE/mhe.h"
-#include "turtlebot_MHE/types.h"
 #include <ceres/ceres.h>
-
-typedef ceres::AutoDiffCostFunction<PoseResidual,3,3> PoseCostFunction;
-typedef ceres::AutoDiffCostFunction<MeasurementResidual, 2, 2> MeasurementCostFunction;
 
 template<typename T>
 T wrap(T angle)
@@ -12,6 +8,58 @@ T wrap(T angle)
     angle -= 2*pi * floor((angle+pi) * 0.5/pi);
     return angle;
 }
+
+struct PoseResidual
+{
+public:
+    PoseResidual(const Eigen::Vector3d &x, const Eigen::Matrix3d &omega): x_{x}
+    {
+        xi_ = omega.llt().matrixL();
+    }
+
+    template<typename T>
+    bool operator()(const T* const x, T* residual) const
+    {
+        Eigen::Map<const Eigen::Matrix<T,3,1>> pose(x);
+        Eigen::Map<Eigen::Matrix<T,1,3>> res(residual);
+        res = (x_ - pose) * xi_;
+        return true;
+    }
+protected:
+    Eigen::Vector3d x_;
+    Eigen::Matrix3d xi_;
+
+};
+
+struct MeasurementResidual
+{
+public:
+    MeasurementResidual(const Eigen::Vector2d &z, const Eigen::Vector2d &lm, const Eigen::Matrix2d &R_inv): z_{z}, lm_{lm}
+    {
+        xi_ = R_inv.llt().matrixL();
+    }
+
+    template<typename T>
+    bool operator()(const T* const x, T* residual) const
+    {
+        Eigen::Map<const Eigen::Matrix<T,3,1>> pose(x);
+        Eigen::Map<Eigen::Matrix<T,2,1>> res(residual);
+        T range = pose.norm();
+        T phi = wrap(atan2(pose(1) - lm_(1), pose(0) - lm_(0)) - pose(2)); 
+        Eigen::Matrix<T,2,1> z_hat;
+        z_hat << range, phi;
+        
+        res = (z_ - z_hat) * xi_;
+        return true;
+    }
+
+protected:
+    Eigen::Vector2d z_, lm_;
+    Eigen::Matrix2d xi_;
+};
+
+typedef ceres::AutoDiffCostFunction<PoseResidual,3,3> PoseCostFunction;
+typedef ceres::AutoDiffCostFunction<MeasurementResidual, 2, 3> MeasurementCostFunction;
 
 namespace mhe
 {
@@ -63,14 +111,24 @@ void MHE::optimize()
     int i = std::max(0, int(pose_hist_.size() - TIME_HORIZON));
     for(i; i < pose_hist_.size(); ++i)
     {
-        PoseCostFunction *cost_function{new PoseCostFunction(new PoseResidual(pose_hist_[i], Omega_))};
-        problem.AddResidualBlock(cost_function, NULL, pose_hist_[i].data());
+        // PoseCostFunction *cost_function{new PoseCostFunction(new PoseResidual(pose_hist_[i], Omega_))};
+        // problem.AddResidualBlock(cost_function, NULL, pose_hist_[i].data());
     }
 
     //set up measurement residuals
     i = std::max(0, int(z_hist_.size() - TIME_HORIZON));
+    int counter = 0;
     for(i; i < z_hist_.size(); ++i) // May need nested for loops for this one. One for the index and then one for each measurement at that index
     {
+        for(int j{0}; j < NUM_LANDMARKS; ++j)
+        {
+            if(z_ind_(counter,j))
+            {
+                // MeasurementCostFunction *cost_function{new MeasurementCostFunction(new MeasurementResidual(z_hist_[i].col(j), Eigen::Vector2d::Zero(), R_inv_))};
+                // problem.AddResidualBlock(cost_function, NULL, pose_hist_[i].data());
+            }
+        }
+        ++counter;
     }
 
     //setup options and solve
