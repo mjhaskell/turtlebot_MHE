@@ -44,6 +44,7 @@ private:
     std::vector<Meas> z_hist_;
     Zidx z_ind_;
     Meas lms_;
+    Pose mu_;
     Eigen::Matrix2d R_inv_;
     Eigen::Matrix3d Omega_;
 };

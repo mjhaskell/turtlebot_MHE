@@ -58,8 +58,8 @@ MHENode::~MHENode()
 void MHENode::measCallback(const aruco_localization::MarkerMeasurementArrayConstPtr &msg)
 {
     for (int i{0}; i < TIME_HORIZON-1; ++i)
-        z_idx_.col(i) = z_idx_.col(i+1);
-    z_idx_.col(TIME_HORIZON-1).setZero();
+        z_idx_.row(i) = z_idx_.row(i+1);
+    z_idx_.row(TIME_HORIZON-1).setZero();
 
     z_cur_.setZero();
     for (auto const& pose : msg->poses)
@@ -85,7 +85,7 @@ void MHENode::odomCallback(const nav_msgs::OdometryConstPtr &msg)
 
     odom_ << msg->pose.pose.position.y + 3.14558,
              msg->pose.pose.position.x + 2.142763,
-             asin(msg->pose.pose.orientation.z) * -2; 
+             -asin(msg->pose.pose.orientation.z) * 2;
 
     mhe::Input u_odom{msg->twist.twist.linear.x, msg->twist.twist.angular.z};
 

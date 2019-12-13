@@ -48,7 +48,7 @@ public:
         Eigen::Map<const Eigen::Matrix<T,3,1>> pose(x);
         Eigen::Map<Eigen::Matrix<T,2,1>> res(residual);
         T range = pose.norm();
-        T phi = wrap(atan2(pose(1) - lm_(1), pose(0) - lm_(0)) - pose(2)); 
+        T phi = wrap(atan2(lm_(1) - pose(1), lm_(0) - pose(0)) - pose(2));
         Eigen::Matrix<T,2,1> z_hat;
         z_hat << range, phi;
         Eigen::Matrix<T, 2, 1> temp{z_ - z_hat};
@@ -75,6 +75,8 @@ MHE::MHE()
     Omega_ = Eigen::Vector3d{1, 1, 0.5}.asDiagonal();
     R_inv_ = Eigen::Vector2d{1/0.35, 1/0.07}.asDiagonal();
     lms_ = Meas::Zero();
+    mu_ = Pose{2.5, -1.7, 0.175}; //These values from lab. Put these in the params file
+    pose_hist_.push_back(mu_);
 }
 
 MHE::~MHE()
@@ -93,18 +95,21 @@ Pose MHE::propagateState(const Pose &state, const Input &u, double dt)
     double st{sin(state(THETA))};
     double ct{cos(state(THETA))};
     Pose out;
-    out(X) = u(V) * ct * dt;
-    out(Y) = u(V) * st * dt;
-    out(THETA) = wrap(u(W) * dt);
+    out(X) = state(X) +  u(V) * ct * dt;
+    out(Y) = state(Y) + u(V) * st * dt;
+    out(THETA) = wrap(state(THETA) + u(W) * dt);
     return out;
 }
 
 void MHE::update(const Pose &mu, const Meas &z, const Zidx& idx, const Input &u, double dt)
 {
 //    Pose mu_bar{propagateState(mu, u, dt)};
+    mu_ = propagateState(mu_, u, dt);
 
-    pose_hist_.push_back(mu);
+    // pose_hist_.push_back(mu);
+    pose_hist_.push_back(mu_);
     z_hist_.push_back(z);
+    z_ind_ = idx;
 
     optimize();
 }
@@ -132,7 +137,7 @@ void MHE::optimize()
             {
                 //Need the true landmark locations to be stored somewhere
                 MeasurementCostFunction *cost_function{new MeasurementCostFunction(new MeasurementResidual(z_hist_[i].col(j), lms_.col(j), R_inv_))};
-                problem.AddResidualBlock(cost_function, NULL, pose_hist_[i].data());
+                problem.AddResidualBlock(cost_function, NULL, pose_hist_[i+1].data());
             }
         }
         ++counter;
