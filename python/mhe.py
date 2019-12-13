@@ -1,5 +1,4 @@
 import numpy as np
-# import car_params as params
 from copy import deepcopy
 from scipy.optimize import minimize
 from extractdata import landmarks
@@ -20,7 +19,7 @@ class MHE:
         self.pose_hist.append(deepcopy(self.mu)) #change this so that the position is inisialized by the constructor
         self.Omega = np.diag([1e3, 1e3, 0.5e3])
         self.Omega2 = np.diag([1e3, 1e3, 0.5e3])
-        self.R_inv = np.eye(3)
+        self.R_inv = np.diag([1/(.35**2), 1/(.07**2)])
         self.N = 5  #Size of the window to optimize over
 
     def setParams(self, omega, sig_r, sig_phi):
