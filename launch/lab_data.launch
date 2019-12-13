@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+
+<launch>
+
+  <!-- Load common parameters -->
+  <rosparam command="load" file="$(find turtlebot_MHE)/params/mhe_params.yaml"/>
+
+  <!-- MHE Estimator -->
+  <node name="mhe_estimator" pkg="turtlebot_MHE" type="turtlebot_MHE" />
+
+  <node name="player" pkg="rosbag" type="play" output="screen" args="--clock /home/mat/data/rosbags/2019-10-02-17-32-43.bag" />
+
+</launch>
