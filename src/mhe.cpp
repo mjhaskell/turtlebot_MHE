@@ -75,6 +75,11 @@ MHE::MHE()
     Omega_ = Eigen::Vector3d{1, 1, 0.5}.asDiagonal();
     R_inv_ = Eigen::Vector2d{1/0.35, 1/0.07}.asDiagonal();
     lms_ = Meas::Zero();
+
+    std::ofstream file;
+    file.open("/tmp/MHE_landmarks.txt");
+    file << lms_;
+    file.close();
 }
 
 MHE::~MHE()
@@ -161,6 +166,10 @@ void MHE::initializeLandmark(int index, const Eigen::Vector2d &lm)
 void MHE::writeFile()
 {
     std::ofstream file;
+    file.open("/tmp/MHE_landmarks.txt");
+    file << lms_;
+    file.close();
+
     file.open("/tmp/MHE_outputs.txt");
     for (Pose pose : pose_hist_)
         file << pose.transpose() << std::endl;

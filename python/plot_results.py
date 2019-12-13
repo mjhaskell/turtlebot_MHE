@@ -1,4 +1,5 @@
 import numpy as np
-import os, sys
 
-data = np.reshape(np.from)
+lms = np.loadtxt('/tmp/MHE_landmarks.txt')
+poses = np.loadtxt('/tmp/MHE_outputs.txt')
+
