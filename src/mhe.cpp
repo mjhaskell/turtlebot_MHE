@@ -75,20 +75,10 @@ MHE::MHE()
     Omega_ = Eigen::Vector3d{1, 1, 0.5}.asDiagonal();
     R_inv_ = Eigen::Vector2d{1/0.35, 1/0.07}.asDiagonal();
     lms_ = Meas::Zero();
-
-    std::ofstream file;
-    file.open("/tmp/MHE_landmarks.txt");
-    file << lms_;
-    file.close();
 }
 
 MHE::~MHE()
 {
-    // std::ofstream file;
-    // file.open("/tmp/MHE_outputs.txt");
-    // for (Pose pose : pose_hist_)
-    //     file << pose.transpose() << std::endl;
-    // file.close();
 }
 
 void MHE::setParams(const Eigen::Vector3d &omega, double sig_r, double sig_phi)
