@@ -16,11 +16,11 @@ class MHE:
 
         self.mu = np.array([2.5,-1.7, 0.175])
 
-        self.pose_hist.append(deepcopy(self.mu)) #change this so that the position is inisialized by the constructor
+        self.pose_hist.append(deepcopy(self.mu)) 
         self.Omega = np.diag([1e3, 1e3, 0.5e3])
         self.Omega2 = np.diag([1e3, 1e3, 0.5e3])
         self.R_inv = np.diag([1/(.35**2), 1/(.07**2)])
-        self.N = 5  #Size of the window to optimize over
+        self.N = 5  
 
     def setParams(self, omega, sig_r, sig_phi):
         self.Omega = omega
@@ -38,7 +38,7 @@ class MHE:
         temp[2] = unwrap(temp[2])
         return temp
 
-    def update(self, mu, z, z_ind, v, w, dt):
+    def update(self, z, z_ind, v, w, dt):
         mu_bar = self.propagateState(self.mu, v, w, dt)
 
         self.pose_hist.append(mu_bar)

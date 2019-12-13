@@ -4,6 +4,7 @@ from extractdata import *
 
 lms = np.loadtxt('/tmp/MHE_landmarks.txt')
 poses = np.loadtxt('/tmp/MHE_outputs.txt')
+# print(lms)
 
 plt.figure()
 plt.plot(lms[:,0], lms[:,1], 'kx', label='landmarks')
