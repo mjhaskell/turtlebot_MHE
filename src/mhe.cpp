@@ -46,11 +46,12 @@ public:
     bool operator()(const T* const x, T* residual) const
     {
         Eigen::Map<const Eigen::Matrix<T,3,1>> pose(x);
+        Eigen::Matrix<T,2,1> diff; //= lm_ - pose.segment<2>(mhe::X);
+        diff << lm_(mhe::X) - pose(mhe::X), lm_(mhe::Y) - pose(mhe::Y);
         Eigen::Map<Eigen::Matrix<T,2,1>> res(residual);
-        T range = pose.norm();
-        T phi = wrap(atan2(lm_(1) - pose(1), lm_(0) - pose(0)) - pose(2));
-        Eigen::Matrix<T,2,1> z_hat;
-        z_hat << range, phi;
+        T range = diff.norm();
+        T phi = wrap(atan2(diff(mhe::Y), diff(mhe::X)) - pose(mhe::THETA));
+        Eigen::Matrix<T,2,1> z_hat{range, phi};
         Eigen::Matrix<T, 2, 1> temp{z_ - z_hat};
         temp(1) = wrap(temp(1));
         
