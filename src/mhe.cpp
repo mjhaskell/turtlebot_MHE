@@ -79,6 +79,7 @@ MHE::MHE()
 
 MHE::~MHE()
 {
+    writeFile();
 }
 
 void MHE::setParams(const Eigen::Vector3d &omega, double sig_r, double sig_phi)
@@ -157,7 +158,7 @@ void MHE::writeFile()
 {
     std::ofstream file;
     file.open("/tmp/MHE_landmarks.txt");
-    file << lms_;
+    file << lms_.transpose();
     file.close();
 
     file.open("/tmp/MHE_outputs.txt");

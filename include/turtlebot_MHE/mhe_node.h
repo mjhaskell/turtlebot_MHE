@@ -6,7 +6,6 @@
 #include <aruco_localization/MarkerMeasurementArray.h>
 #include <geometry_msgs/PoseStamped.h>
 #include "turtlebot_MHE/mhe.h"
-#include <std_msgs/Bool.h>
 
 class MHENode
 {
@@ -26,7 +25,6 @@ protected:
     void aruco5Callback(const geometry_msgs::PoseStampedConstPtr& msg);
     void aruco64Callback(const geometry_msgs::PoseStampedConstPtr& msg);
     void aruco76Callback(const geometry_msgs::PoseStampedConstPtr& msg);
-    void fileFlagCallback(const std_msgs::BoolConstPtr& msg);
 
 private:
     ros::NodeHandle nh_;

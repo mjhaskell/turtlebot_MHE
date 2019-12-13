@@ -47,7 +47,6 @@ MHENode::MHENode() :
     aruco_5_sub_ = nh_.subscribe("ArUco_5_ned", 1, &MHENode::aruco5Callback, this);
     aruco_64_sub_ = nh_.subscribe("ArUco_64_ned", 1, &MHENode::aruco64Callback, this);
     aruco_76_sub_ = nh_.subscribe("ArUco_76_ned", 1, &MHENode::aruco76Callback, this);
-    file_flag_sub_ = nh_.subscribe("writeFile", 1, &MHENode::fileFlagCallback, this);
 //    pub_ = nh_.advertise<std_msgs::Bool>("topic", 1);
 }
 
@@ -98,7 +97,7 @@ void MHENode::aruco110Callback(const geometry_msgs::PoseStampedConstPtr& msg)
     if(!lm_init_[110])
     {
     Eigen::Vector2d lm;
-    lm << msg->pose.position.x, msg->pose.position.x;
+    lm << msg->pose.position.x, msg->pose.position.y;
     int idx = id2idx_[110];
     estimator_.initializeLandmark(idx, lm);
     lm_init_[110] = true;
@@ -110,7 +109,7 @@ void MHENode::aruco121Callback(const geometry_msgs::PoseStampedConstPtr& msg)
     if(!lm_init_[121])
     {
     Eigen::Vector2d lm;
-    lm << msg->pose.position.x, msg->pose.position.x;
+    lm << msg->pose.position.x, msg->pose.position.y;
     int idx = id2idx_[121];
     estimator_.initializeLandmark(idx, lm);
     lm_init_[121] = true;
@@ -122,7 +121,7 @@ void MHENode::aruco245Callback(const geometry_msgs::PoseStampedConstPtr& msg)
     if(!lm_init_[245])
     {
     Eigen::Vector2d lm;
-    lm << msg->pose.position.x, msg->pose.position.x;
+    lm << msg->pose.position.x, msg->pose.position.y;
     int idx = id2idx_[245];
     estimator_.initializeLandmark(idx, lm);
     lm_init_[245] = true;
@@ -134,7 +133,7 @@ void MHENode::aruco248Callback(const geometry_msgs::PoseStampedConstPtr& msg)
     if(!lm_init_[248])
     {
     Eigen::Vector2d lm;
-    lm << msg->pose.position.x, msg->pose.position.x;
+    lm << msg->pose.position.x, msg->pose.position.y;
     int idx = id2idx_[248];
     estimator_.initializeLandmark(idx, lm);
     lm_init_[248] = true;
@@ -146,7 +145,7 @@ void MHENode::aruco25Callback(const geometry_msgs::PoseStampedConstPtr& msg)
     if(!lm_init_[25])
     {
     Eigen::Vector2d lm;
-    lm << msg->pose.position.x, msg->pose.position.x;
+    lm << msg->pose.position.x, msg->pose.position.y;
     int idx = id2idx_[25];
     estimator_.initializeLandmark(idx, lm);
     lm_init_[25] = true;
@@ -158,7 +157,7 @@ void MHENode::aruco55Callback(const geometry_msgs::PoseStampedConstPtr& msg)
     if(!lm_init_[55])
     {
     Eigen::Vector2d lm;
-    lm << msg->pose.position.x, msg->pose.position.x;
+    lm << msg->pose.position.x, msg->pose.position.y;
     int idx = id2idx_[55];
     estimator_.initializeLandmark(idx, lm);
     lm_init_[55] = true;
@@ -170,7 +169,7 @@ void MHENode::aruco5Callback(const geometry_msgs::PoseStampedConstPtr& msg)
     if(!lm_init_[5])
     {
     Eigen::Vector2d lm;
-    lm << msg->pose.position.x, msg->pose.position.x;
+    lm << msg->pose.position.x, msg->pose.position.y;
     int idx = id2idx_[5];
     estimator_.initializeLandmark(idx, lm);
     lm_init_[5] = true;
@@ -181,7 +180,7 @@ void MHENode::aruco64Callback(const geometry_msgs::PoseStampedConstPtr& msg)
     if(!lm_init_[64])
     {
     Eigen::Vector2d lm;
-    lm << msg->pose.position.x, msg->pose.position.x;
+    lm << msg->pose.position.x, msg->pose.position.y;
     int idx = id2idx_[64];
     estimator_.initializeLandmark(idx, lm);
     lm_init_[64] = true;
@@ -193,14 +192,9 @@ void MHENode::aruco76Callback(const geometry_msgs::PoseStampedConstPtr& msg)
     if(!lm_init_[76])
     {
     Eigen::Vector2d lm;
-    lm << msg->pose.position.x, msg->pose.position.x;
+    lm << msg->pose.position.x, msg->pose.position.y;
     int idx = id2idx_[76];
     estimator_.initializeLandmark(idx, lm);
     lm_init_[76] = true;
     }
-}
-
-void MHENode::fileFlagCallback(const std_msgs::BoolConstPtr& msg)
-{
-    estimator_.writeFile();
 }
