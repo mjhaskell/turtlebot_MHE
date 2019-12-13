@@ -159,7 +159,7 @@ void MHE::optimize()
 
     //set up odometry residuals
     i = std::max(0, int(odom_hist_.size() - TIME_HORIZON));
-    Eigen::Matrix3d Om = Eigen::Vector3d{5e9, 5e9, 1e9}.asDiagonal();
+    Eigen::Matrix3d Om = Eigen::Vector3d{1e1, 1e1, 5e-1}.asDiagonal();
     for(i; i < odom_hist_.size(); ++i)
     {
         OdomCostFunction * cost_function{new OdomCostFunction(new OdomResidual(odom_hist_[i], Om))};
