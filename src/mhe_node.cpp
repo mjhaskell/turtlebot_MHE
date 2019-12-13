@@ -83,9 +83,9 @@ void MHENode::odomCallback(const nav_msgs::OdometryConstPtr &msg)
     double dt{now - prev_time};
     prev_time = now;
 
-    odom_ << msg->pose.pose.position.x,
-             msg->pose.pose.position.y,
-             asin(msg->pose.pose.orientation.z) * 2;
+    odom_ << msg->pose.pose.position.y + 3.14558,
+             msg->pose.pose.position.x + 2.142763,
+             asin(msg->pose.pose.orientation.z) * -2; 
 
     mhe::Input u_odom{msg->twist.twist.linear.x, msg->twist.twist.angular.z};
 
@@ -97,7 +97,7 @@ void MHENode::aruco110Callback(const geometry_msgs::PoseStampedConstPtr& msg)
     if(!lm_init_[110])
     {
     Eigen::Vector2d lm;
-    lm << msg->pose.position.x, msg->pose.position.y;
+    lm << msg->pose.position.y, msg->pose.position.x;
     int idx = id2idx_[110];
     estimator_.initializeLandmark(idx, lm);
     lm_init_[110] = true;
@@ -109,7 +109,7 @@ void MHENode::aruco121Callback(const geometry_msgs::PoseStampedConstPtr& msg)
     if(!lm_init_[121])
     {
     Eigen::Vector2d lm;
-    lm << msg->pose.position.x, msg->pose.position.y;
+    lm << msg->pose.position.y, msg->pose.position.x;
     int idx = id2idx_[121];
     estimator_.initializeLandmark(idx, lm);
     lm_init_[121] = true;
@@ -121,7 +121,7 @@ void MHENode::aruco245Callback(const geometry_msgs::PoseStampedConstPtr& msg)
     if(!lm_init_[245])
     {
     Eigen::Vector2d lm;
-    lm << msg->pose.position.x, msg->pose.position.y;
+    lm << msg->pose.position.y, msg->pose.position.x;
     int idx = id2idx_[245];
     estimator_.initializeLandmark(idx, lm);
     lm_init_[245] = true;
@@ -133,7 +133,7 @@ void MHENode::aruco248Callback(const geometry_msgs::PoseStampedConstPtr& msg)
     if(!lm_init_[248])
     {
     Eigen::Vector2d lm;
-    lm << msg->pose.position.x, msg->pose.position.y;
+    lm << msg->pose.position.y, msg->pose.position.x;
     int idx = id2idx_[248];
     estimator_.initializeLandmark(idx, lm);
     lm_init_[248] = true;
@@ -145,7 +145,7 @@ void MHENode::aruco25Callback(const geometry_msgs::PoseStampedConstPtr& msg)
     if(!lm_init_[25])
     {
     Eigen::Vector2d lm;
-    lm << msg->pose.position.x, msg->pose.position.y;
+    lm << msg->pose.position.y, msg->pose.position.x;
     int idx = id2idx_[25];
     estimator_.initializeLandmark(idx, lm);
     lm_init_[25] = true;
@@ -157,7 +157,7 @@ void MHENode::aruco55Callback(const geometry_msgs::PoseStampedConstPtr& msg)
     if(!lm_init_[55])
     {
     Eigen::Vector2d lm;
-    lm << msg->pose.position.x, msg->pose.position.y;
+    lm << msg->pose.position.y, msg->pose.position.x;
     int idx = id2idx_[55];
     estimator_.initializeLandmark(idx, lm);
     lm_init_[55] = true;
@@ -169,7 +169,7 @@ void MHENode::aruco5Callback(const geometry_msgs::PoseStampedConstPtr& msg)
     if(!lm_init_[5])
     {
     Eigen::Vector2d lm;
-    lm << msg->pose.position.x, msg->pose.position.y;
+    lm << msg->pose.position.y, msg->pose.position.x;
     int idx = id2idx_[5];
     estimator_.initializeLandmark(idx, lm);
     lm_init_[5] = true;
@@ -180,7 +180,7 @@ void MHENode::aruco64Callback(const geometry_msgs::PoseStampedConstPtr& msg)
     if(!lm_init_[64])
     {
     Eigen::Vector2d lm;
-    lm << msg->pose.position.x, msg->pose.position.y;
+    lm << msg->pose.position.y, msg->pose.position.x;
     int idx = id2idx_[64];
     estimator_.initializeLandmark(idx, lm);
     lm_init_[64] = true;
@@ -192,7 +192,7 @@ void MHENode::aruco76Callback(const geometry_msgs::PoseStampedConstPtr& msg)
     if(!lm_init_[76])
     {
     Eigen::Vector2d lm;
-    lm << msg->pose.position.x, msg->pose.position.y;
+    lm << msg->pose.position.y, msg->pose.position.x;
     int idx = id2idx_[76];
     estimator_.initializeLandmark(idx, lm);
     lm_init_[76] = true;
