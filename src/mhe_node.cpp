@@ -67,7 +67,7 @@ void MHENode::measCallback(const aruco_localization::MarkerMeasurementArrayConst
         int idx{id2idx_[pose.aruco_id]};
         z_idx_(TIME_HORIZON-1, idx) = true;
         mhe::Pose pt{pose.position.x, pose.position.y, pose.position.z};
-        z_cur_.col(idx) << pt.norm(), atan2(pt(0), pt(2));
+        z_cur_.col(idx) << pt.norm() * 10, atan2(pt(0), pt(2));
     }
 }
 

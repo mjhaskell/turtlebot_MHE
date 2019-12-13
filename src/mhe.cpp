@@ -24,7 +24,7 @@ public:
         Eigen::Map<const Eigen::Matrix<T,3,1>> pose(x);
         Eigen::Map<Eigen::Matrix<T,1,3>> res(residual);
         Eigen::Matrix<T,3,1> temp{x_ - pose};
-        temp(2) = wrap(temp(2));
+        temp(mhe::THETA) = wrap(temp(mhe::THETA));
         res = temp.transpose() * xi_;
         return true;
     }
@@ -46,14 +46,14 @@ public:
     bool operator()(const T* const x, T* residual) const
     {
         Eigen::Map<const Eigen::Matrix<T,3,1>> pose(x);
-        Eigen::Matrix<T,2,1> diff; //= lm_ - pose.segment<2>(mhe::X);
+        Eigen::Matrix<T,2,1> diff; // = lm_ - pose.segment<2>(mhe::X);
         diff << lm_(mhe::X) - pose(mhe::X), lm_(mhe::Y) - pose(mhe::Y);
         Eigen::Map<Eigen::Matrix<T,2,1>> res(residual);
         T range = diff.norm();
         T phi = wrap(atan2(diff(mhe::Y), diff(mhe::X)) - pose(mhe::THETA));
         Eigen::Matrix<T,2,1> z_hat{range, phi};
         Eigen::Matrix<T, 2, 1> temp{z_ - z_hat};
-        temp(1) = wrap(temp(1));
+        temp(mhe::PHI) = wrap(temp(mhe::PHI));
         
         res = temp.transpose() * xi_;
         return true;
@@ -64,8 +64,35 @@ protected:
     Eigen::Matrix2d xi_;
 };
 
+struct OdomResidual
+{
+public:
+    OdomResidual(const Eigen::Vector3d &x, const Eigen::Matrix3d &omega): x_{x}
+    {
+        xi_ = omega.llt().matrixL();
+    }
+
+    template<typename T>
+    bool operator()(const T* const x1, const T* const x2, T* residual) const
+    {
+        Eigen::Map<const Eigen::Matrix<T,3,1>> pose1(x1), pose2(x2);
+        Eigen::Map<Eigen::Matrix<T,1,3>> res(residual);
+        Eigen::Matrix<T,3,1> diff{pose2 - pose1};
+        diff(mhe::THETA) = wrap(diff(mhe::THETA));
+        Eigen::Matrix<T,3,1> temp{x_ - diff};
+        temp(mhe::THETA) = wrap(temp(mhe::THETA));
+        res = temp.transpose() * xi_;
+        return true;
+    }
+protected:
+    Eigen::Vector3d x_;
+    Eigen::Matrix3d xi_;
+
+};
+
 typedef ceres::AutoDiffCostFunction<PoseResidual,3,3> PoseCostFunction;
 typedef ceres::AutoDiffCostFunction<MeasurementResidual, 2, 3> MeasurementCostFunction;
+typedef ceres::AutoDiffCostFunction<OdomResidual,3,3,3> OdomCostFunction;
 
 namespace mhe
 {
@@ -96,9 +123,12 @@ Pose MHE::propagateState(const Pose &state, const Input &u, double dt)
     double st{sin(state(THETA))};
     double ct{cos(state(THETA))};
     Pose out;
-    out(X) = state(X) +  u(V) * ct * dt;
-    out(Y) = state(Y) + u(V) * st * dt;
-    out(THETA) = wrap(state(THETA) + u(W) * dt);
+    out(X) = u(V) * ct * dt;
+    out(Y) = u(V) * st * dt;
+    out(THETA) = u(W) * dt;
+    odom_hist_.push_back(out);
+    out = state + out;
+    out(THETA) = wrap(out(THETA));
     return out;
 }
 
@@ -125,6 +155,15 @@ void MHE::optimize()
     {
         PoseCostFunction *cost_function{new PoseCostFunction(new PoseResidual(pose_hist_[i], Omega_))};
         problem.AddResidualBlock(cost_function, NULL, pose_hist_[i].data());
+    }
+
+    //set up odometry residuals
+    i = std::max(0, int(odom_hist_.size() - TIME_HORIZON));
+    Eigen::Matrix3d Om = Eigen::Vector3d{5e9, 5e9, 1e9}.asDiagonal();
+    for(i; i < odom_hist_.size(); ++i)
+    {
+        OdomCostFunction * cost_function{new OdomCostFunction(new OdomResidual(odom_hist_[i], Om))};
+        problem.AddResidualBlock(cost_function, NULL, pose_hist_[i].data(), pose_hist_[i+1].data());
     }
 
     //set up measurement residuals

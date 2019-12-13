@@ -42,6 +42,7 @@ public:
 private:
     std::vector<Pose> pose_hist_;
     std::vector<Meas> z_hist_;
+    std::vector<Pose> odom_hist_;
     Zidx z_ind_;
     Meas lms_;
     Pose mu_;
