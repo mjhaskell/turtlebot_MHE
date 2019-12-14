@@ -1,6 +1,5 @@
-mhe:
-    Omega_x: 1.e3
-    Omega_y: 1.e3
-    Omega_theta: 0.5e3
-    sigma_r: 0.35
-    sigma_phi: 0.07
+Omega_x: 1000.
+Omega_y: 1000.
+Omega_theta: 500.
+sigma_r: 0.35
+sigma_phi: 0.07

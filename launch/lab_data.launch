@@ -2,12 +2,13 @@
 
 <launch>
 
-  <!-- Load common parameters -->
-  <rosparam command="load" file="$(find turtlebot_MHE)/params/mhe_params.yaml"/>
+  <arg name="bag_path" default="$(env BAG_PATH)"/>
 
   <!-- MHE Estimator -->
-  <node name="mhe_estimator" pkg="turtlebot_MHE" type="turtlebot_MHE" />
+  <node name="mhe" pkg="turtlebot_MHE" type="turtlebot_MHE">
+    <rosparam command="load" file="$(find turtlebot_MHE)/params/mhe_params.yaml"/>
+  </node>
 
-  <node name="player" pkg="rosbag" type="play" output="screen" args="--clock /home/mat/data/rosbags/2019-10-02-17-32-43.bag" />
+  <node name="player" pkg="rosbag" type="play" output="screen" args="--clock $(arg bag_path)"/>
 
 </launch>

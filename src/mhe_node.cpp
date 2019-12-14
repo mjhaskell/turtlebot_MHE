@@ -1,4 +1,5 @@
 #include "turtlebot_MHE/mhe_node.h"
+#include <ros/console.h>
 
 MHENode::MHENode() :
     nh_private_("~")
@@ -27,13 +28,19 @@ MHENode::MHENode() :
     lm_init_[248] = false;
     lm_init_[25] = false;
 
-    double x,y,theta;
-    x = nh_private_.param<double>("Omega_x", 1e3);
-    y = nh_private_.param<double>("Omega_x", 1e3);
-    theta = nh_private_.param<double>("Omega_x", 0.5e3);
+    bool load_successful{true};
+    double x{10}, y{10}, theta{5}, sig_r{0.1}, sig_phi{0.01};
+    load_successful *= nh_private_.getParam("Omega_x", x);
+    load_successful *= nh_private_.getParam("Omega_y", y);
+    load_successful *= nh_private_.getParam("Omega_theta", theta);
+    load_successful *= nh_private_.getParam("sigma_r", sig_r);
+    load_successful *= nh_private_.getParam("sigma_phi", sig_phi);
+    if (load_successful)
+        ROS_INFO("Params loaded successfully.");
+    else
+        ROS_WARN("Failed to load params.");
+
     Eigen::Vector3d Omega{x,y,theta};
-    double sig_r{nh_private_.param<double>("sigma_r", 0.35)};
-    double sig_phi{nh_private_.param<double>("sigma_phi", 0.07)};
     estimator_.setParams(Omega, sig_r, sig_phi);
 
     meas_sub_ = nh_.subscribe("aruco/measurements", 1, &MHENode::measCallback, this);
