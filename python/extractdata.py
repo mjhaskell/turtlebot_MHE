@@ -1,8 +1,12 @@
 from operator import itemgetter 
 import scipy.io as sio
+import rospkg
 
-data = sio.loadmat("processed_data.mat")
-truth_data = sio.loadmat("truth_data.mat")
+pack = rospkg.RosPack()
+loc = pack.get_path('turtlebot_MHE')
+
+data = sio.loadmat(loc + "/python/processed_data.mat")
+truth_data = sio.loadmat(loc + "/python/truth_data.mat")
 
 landmarks, l_time, l_depth, l_bearing, odom_t, pos_odom_se2, vel_odom = \
 itemgetter("landmarks", "l_time", "l_depth", "l_bearing", "odom_t", "pos_odom_se2", "vel_odom")(data)
