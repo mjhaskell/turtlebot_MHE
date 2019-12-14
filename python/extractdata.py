@@ -3,7 +3,7 @@ import scipy.io as sio
 import rospkg
 
 pack = rospkg.RosPack()
-loc = pack.get_path('turtlebot_MHE')
+loc = pack.get_path('turtlebot_mhe')
 
 data = sio.loadmat(loc + "/python/processed_data.mat")
 truth_data = sio.loadmat(loc + "/python/truth_data.mat")
