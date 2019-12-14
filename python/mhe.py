@@ -1,8 +1,6 @@
 import numpy as np
-from copy import deepcopy
 from scipy.optimize import minimize
 from extractdata import landmarks
-from copy import deepcopy
 
 def unwrap(phi):
     phi -= 2 * np.pi * np.floor((phi + np.pi) * 0.5/np.pi)
@@ -16,11 +14,12 @@ class MHE:
 
         self.mu = np.array([2.5,-1.7, 0.175])
 
-        self.pose_hist.append(deepcopy(self.mu)) 
+        self.pose_hist.append(self.mu.copy()) 
         self.Omega = np.diag([1e3, 1e3, 0.5e3])
         self.Omega2 = np.diag([1e3, 1e3, 0.5e3])
         self.R_inv = np.diag([1/(.35**2), 1/(.07**2)])
         self.N = 5  
+        np.savetxt('/tmp/MHE_landmarks.txt', landmarks.T)
 
     def setParams(self, omega, sig_r, sig_phi):
         self.Omega = omega
@@ -62,8 +61,7 @@ class MHE:
 
     def optimize(self, mu, z, z_ind):
         mu = np.array(mu).T.flatten(order='F')
-        x0 = deepcopy(mu)
-        sigma = np.array(sigma)
+        x0 = mu.copy()
 
         x_hat_opt = minimize(self.objective_fun, mu, method='SLSQP', jac=False, args=(x0, z, z_ind, landmarks), options={'ftol':1e-5, 'disp':False})
 

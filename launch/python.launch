@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+
+<launch>
+
+  <!-- MHE Estimator -->
+  <node name="mhe_estimator" pkg="turtlebot_MHE" type="mhe_node.py" output="screen" />
+
+  <node name="player" pkg="rosbag" type="play" output="screen" args="--clock /home/mat/data/rosbags/2019-10-02-17-32-43.bag" />
+
+</launch>
