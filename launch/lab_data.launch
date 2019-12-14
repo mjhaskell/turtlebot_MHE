@@ -2,11 +2,12 @@
 
 <launch>
 
-  <arg name="bag_path" default="$(optenv BAG_PATH /no_bag_given)"/>
+  <arg name="bag_path" default="$(optenv BAG_PATH)"/>
+  <arg name="test" value="$(env USER)"/>
 
   <!-- MHE Estimator -->
-  <node name="mhe" pkg="turtlebot_MHE" type="turtlebot_MHE" output="screen">
-    <rosparam command="load" file="$(find turtlebot_MHE)/params/mhe_params.yaml"/>
+  <node name="mhe" pkg="turtlebot_mhe" type="turtlebot_mhe" output="screen">
+    <rosparam command="load" file="$(find turtlebot_mhe)/params/mhe_params.yaml"/>
   </node>
 
   <node name="player" pkg="rosbag" type="play" output="screen" args="--clock $(arg bag_path)"/>

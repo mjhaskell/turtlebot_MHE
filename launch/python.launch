@@ -5,7 +5,7 @@
   <arg name="bag_path" default="$(optenv BAG_PATH /no_bag_given)"/>
 
   <!-- MHE Estimator -->
-  <node name="mhe_estimator" pkg="turtlebot_MHE" type="mhe_node.py" output="screen" />
+  <node name="mhe_estimator" pkg="turtlebot_mhe" type="mhe_node.py" output="screen" />
 
   <!-- ROS Bag -->
   <node name="player" pkg="rosbag" type="play" output="screen" args="--clock $(arg bag_path)"/>

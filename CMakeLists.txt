@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.4)
-project(turtlebot_MHE)
+project(turtlebot_mhe)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED 1)
 
@@ -24,7 +24,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}
 file(GLOB_RECURSE PROJ_SRC RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} 
     FOLLOW_SYMLINKS src/*.cpp)
 file(GLOB_RECURSE PROJ_INC RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} 
-    FOLLOW_SYMLINKS include/${PROJECT_NAME}/*.h)
+    FOLLOW_SYMLINKS include/turtlebot_MHE/*.h)
 
 add_executable(${PROJECT_NAME}
     ${PROJ_SRC}

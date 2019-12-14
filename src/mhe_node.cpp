@@ -35,9 +35,7 @@ MHENode::MHENode() :
     load_successful *= nh_private_.getParam("Omega_theta", theta);
     load_successful *= nh_private_.getParam("sigma_r", sig_r);
     load_successful *= nh_private_.getParam("sigma_phi", sig_phi);
-    if (load_successful)
-        ROS_INFO("Params loaded successfully.");
-    else
+    if (!load_successful)
         ROS_WARN("Failed to load params.");
 
     Eigen::Vector3d Omega{x,y,theta};
