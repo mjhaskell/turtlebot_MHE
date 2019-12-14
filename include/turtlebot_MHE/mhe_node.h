@@ -6,6 +6,7 @@
 #include <aruco_localization/MarkerMeasurementArray.h>
 #include <geometry_msgs/PoseStamped.h>
 #include "turtlebot_MHE/mhe.h"
+#include <fstream>
 
 class MHENode
 {
@@ -48,6 +49,11 @@ private:
     mhe::Meas z_cur_;
     mhe::Zidx z_idx_;
     mhe::Pose odom_;
+
+    // debug
+    std::ofstream odom_file_;
+    std::ofstream range_file_;
+    std::ofstream bearing_file_;
 };
 
 #endif // MHE_NODE_H

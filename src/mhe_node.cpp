@@ -53,11 +53,18 @@ MHENode::MHENode() :
     aruco_64_sub_ = nh_.subscribe("ArUco_64_ned", 1, &MHENode::aruco64Callback, this);
     aruco_76_sub_ = nh_.subscribe("ArUco_76_ned", 1, &MHENode::aruco76Callback, this);
 //    pub_ = nh_.advertise<std_msgs::Bool>("topic", 1);
+
+    // debug
+    odom_file_.open("/tmp/MHE_odom_debug.txt");
+    range_file_.open("/tmp/MHE_range_debug.txt");
+    bearing_file_.open("/tmp/MHE_bearing_debug.txt");
 }
 
 MHENode::~MHENode()
 {
-
+    odom_file_.close();
+    range_file_.close();
+    bearing_file_.close();
 }
 
 void MHENode::measCallback(const aruco_localization::MarkerMeasurementArrayConstPtr &msg)
@@ -93,6 +100,10 @@ void MHENode::odomCallback(const nav_msgs::OdometryConstPtr &msg)
              -asin(msg->pose.pose.orientation.z) * 2;
 
     mhe::Input u_odom{msg->twist.twist.linear.x, msg->twist.twist.angular.z};
+
+    odom_file_ << u_odom.transpose() << std::endl;
+    range_file_ << z_cur_.row(0) << std::endl;
+    bearing_file_ << z_cur_.row(1) << std::endl;
 
     estimator_.update(odom_, z_cur_, z_idx_, u_odom, dt);
 }
