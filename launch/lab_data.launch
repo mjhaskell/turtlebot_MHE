@@ -2,10 +2,10 @@
 
 <launch>
 
-  <arg name="bag_path" default="$(env BAG_PATH)"/>
+  <arg name="bag_path" default="$(optenv BAG_PATH /no_bag_given)"/>
 
   <!-- MHE Estimator -->
-  <node name="mhe" pkg="turtlebot_MHE" type="turtlebot_MHE">
+  <node name="mhe" pkg="turtlebot_MHE" type="turtlebot_MHE" output="screen">
     <rosparam command="load" file="$(find turtlebot_MHE)/params/mhe_params.yaml"/>
   </node>
 

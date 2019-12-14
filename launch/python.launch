@@ -2,7 +2,7 @@
 
 <launch>
 
-  <arg name="bag_path" default="$(env BAG_PATH)"/>
+  <arg name="bag_path" default="$(optenv BAG_PATH /no_bag_given)"/>
 
   <!-- MHE Estimator -->
   <node name="mhe_estimator" pkg="turtlebot_MHE" type="mhe_node.py" output="screen" />
