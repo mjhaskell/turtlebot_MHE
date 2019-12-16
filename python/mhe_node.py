@@ -31,8 +31,9 @@ class MHENode():
         for pose in msg.poses:
             idx.append([self.id2idx[pose.aruco_id]])
             pt = np.array([pose.position.x, pose.position.y, pose.position.z])
-            r = np.sqrt(pt @ pt)
-            phi = np.arctan2(pt[0], pt[2])
+            r = np.sqrt(pt @ pt) * 10
+#            r = 11 * pt.item(2)
+            phi = -np.arctan2(pt[0], pt[2])
             z.append([r, phi])
         self.z_cur = np.array(z).T
         self.z_ind = np.array(idx).T
