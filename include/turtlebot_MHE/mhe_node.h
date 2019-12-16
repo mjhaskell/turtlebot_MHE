@@ -48,6 +48,7 @@ private:
     mhe::Meas z_cur_;
     mhe::Zidx z_idx_;
     mhe::Pose odom_;
+    Eigen::Matrix<bool, 1, NUM_LANDMARKS> last_idx_;
 };
 
 #endif // MHE_NODE_H

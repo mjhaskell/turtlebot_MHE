@@ -157,14 +157,14 @@ void MHE::optimize()
         problem.AddResidualBlock(cost_function, NULL, pose_hist_[i].data());
     }
 
-    //set up odometry residuals
-    i = std::max(0, int(odom_hist_.size() - TIME_HORIZON));
-    Eigen::Matrix3d Om = Eigen::Vector3d{1e1, 1e1, 5e-1}.asDiagonal();
-    for(i; i < odom_hist_.size(); ++i)
-    {
-        OdomCostFunction * cost_function{new OdomCostFunction(new OdomResidual(odom_hist_[i], Om))};
-        problem.AddResidualBlock(cost_function, NULL, pose_hist_[i].data(), pose_hist_[i+1].data());
-    }
+//    //set up odometry residuals
+//    i = std::max(0, int(odom_hist_.size() - TIME_HORIZON));
+//    Eigen::Matrix3d Om = Eigen::Vector3d{1e1, 1e1, 5e-1}.asDiagonal();
+//    for(i; i < odom_hist_.size(); ++i)
+//    {
+//        OdomCostFunction * cost_function{new OdomCostFunction(new OdomResidual(odom_hist_[i], Om))};
+//        problem.AddResidualBlock(cost_function, NULL, pose_hist_[i].data(), pose_hist_[i+1].data());
+//    }
 
     //set up measurement residuals
     i = std::max(0, int(z_hist_.size() - TIME_HORIZON));
@@ -173,7 +173,7 @@ void MHE::optimize()
     {
         for(int j{0}; j < NUM_LANDMARKS; ++j)
         {
-            if(z_ind_(counter,j))
+            if(z_ind_(TIME_HORIZON - counter - 1,j))
             {
                 //Need the true landmark locations to be stored somewhere
                 MeasurementCostFunction *cost_function{new MeasurementCostFunction(new MeasurementResidual(z_hist_[i].col(j), lms_.col(j), R_inv_))};

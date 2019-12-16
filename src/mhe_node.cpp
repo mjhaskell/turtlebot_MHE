@@ -7,6 +7,7 @@ MHENode::MHENode() :
     z_cur_.setZero();
     z_idx_.setZero();
     odom_.setZero();
+    last_idx_.setZero();
 
     id2idx_[5] = 0;
     id2idx_[25] = 1;
@@ -62,22 +63,26 @@ MHENode::~MHENode()
 
 void MHENode::measCallback(const aruco_localization::MarkerMeasurementArrayConstPtr &msg)
 {
-    for (int i{0}; i < TIME_HORIZON-1; ++i)
-        z_idx_.row(i) = z_idx_.row(i+1);
-    z_idx_.row(TIME_HORIZON-1).setZero();
+//    for (int i{0}; i < TIME_HORIZON-1; ++i)
+//        z_idx_.row(i) = z_idx_.row(i+1);
+//    z_idx_.row(TIME_HORIZON-1).setZero();
 
     z_cur_.setZero();
+    last_idx_.setZero();
     for (auto const& pose : msg->poses)
     {
         int idx{id2idx_[pose.aruco_id]};
-        z_idx_(TIME_HORIZON-1, idx) = true;
+//        z_idx_(TIME_HORIZON-1, idx) = true;
+        last_idx_(idx) = true;
         mhe::Pose pt{pose.position.x, pose.position.y, pose.position.z};
-        z_cur_.col(idx) << pt.norm() * 10, atan2(pt(0), pt(2));
+//        z_cur_.col(idx) << pt.norm() * 11 , atan2(pt(0), pt(2));
+        z_cur_.col(idx) << pt(2) * 11 , -atan2(pt(0), pt(2));
     }
 }
 
 void MHENode::odomCallback(const nav_msgs::OdometryConstPtr &msg)
 {
+    //Update odometry stuff
     static double prev_time{0};
     if (prev_time == 0.0)
     {
@@ -87,6 +92,11 @@ void MHENode::odomCallback(const nav_msgs::OdometryConstPtr &msg)
     double now{msg->header.stamp.toSec()};
     double dt{now - prev_time};
     prev_time = now;
+
+    //Shift measurements
+    for (int i{0}; i < TIME_HORIZON-1; ++i)
+        z_idx_.row(i) = z_idx_.row(i+1);
+    z_idx_.row(TIME_HORIZON-1) = last_idx_;
 
     odom_ << msg->pose.pose.position.y + 3.14558,
              msg->pose.pose.position.x + 2.142763,
