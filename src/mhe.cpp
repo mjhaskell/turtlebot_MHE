@@ -162,7 +162,7 @@ void MHE::optimize()
 //    Eigen::Matrix3d Om = Eigen::Vector3d{1e1, 1e1, 5e-1}.asDiagonal();
 //    for(i; i < odom_hist_.size(); ++i)
 //    {
-//        OdomCostFunction * cost_function{new OdomCostFunction(new OdomResidual(odom_hist_[i], Om))};
+//        OdomCostFunction * cost_function{new OdomCostFunction(new OdomResidual(odom_hist_[i], Omega_))};
 //        problem.AddResidualBlock(cost_function, NULL, pose_hist_[i].data(), pose_hist_[i+1].data());
 //    }
 
@@ -173,8 +173,11 @@ void MHE::optimize()
     {
         for(int j{0}; j < NUM_LANDMARKS; ++j)
         {
-            if(z_ind_(TIME_HORIZON - counter - 1,j))
+//            if(z_ind_(TIME_HORIZON - counter - 1,j))
+            if(z_ind_(counter,j))
             {
+//                if(z_hist_[i].col(j)(0) == 0.0 || z_hist_[i].col(j)(1) == 0.0)
+//                    int debug =  1;
                 //Need the true landmark locations to be stored somewhere
                 MeasurementCostFunction *cost_function{new MeasurementCostFunction(new MeasurementResidual(z_hist_[i].col(j), lms_.col(j), R_inv_))};
                 problem.AddResidualBlock(cost_function, NULL, pose_hist_[i+1].data());
