@@ -134,10 +134,8 @@ Pose MHE::propagateState(const Pose &state, const Input &u, double dt)
 
 void MHE::update(const Pose &mu, const Meas &z, const Zidx& idx, const Input &u, double dt)
 {
-//    Pose mu_bar{propagateState(mu, u, dt)};
     mu_ = propagateState(mu_, u, dt);
 
-    // pose_hist_.push_back(mu);
     pose_hist_.push_back(mu_);
     z_hist_.push_back(z);
     z_ind_ = idx;
@@ -159,7 +157,7 @@ void MHE::optimize()
 
     //set up odometry residuals
     i = std::max(0, int(odom_hist_.size() - TIME_HORIZON));
-    Eigen::Matrix3d Om = Eigen::Vector3d{5e3, 5e3, 1e3}.asDiagonal(); //1e3, 1e3, 5e2
+    Eigen::Matrix3d Om = Eigen::Vector3d{1e3, 1e3, 5e2}.asDiagonal();
     for(i; i < odom_hist_.size(); ++i)
     {
         OdomCostFunction * cost_function{new OdomCostFunction(new OdomResidual(odom_hist_[i], Om))};
@@ -175,10 +173,8 @@ void MHE::optimize()
     {
         for(int j{0}; j < NUM_LANDMARKS; ++j)
         {
-//            if(z_ind_(TIME_HORIZON - counter - 1,j))
             if(z_ind_(counter,j))
             {
-                //Need the true landmark locations to be stored somewhere
                 MeasurementCostFunction *cost_function{new MeasurementCostFunction(new MeasurementResidual(z_hist_[i].col(j), lms_.col(j), R_inv_))};
                 problem.AddResidualBlock(cost_function, NULL, pose_hist_[i+1].data());
             }
@@ -190,8 +186,6 @@ void MHE::optimize()
     ceres::Solver::Options options;
     options.minimizer_progress_to_stdout = false;
     options.max_num_iterations = 50;
-//    options.gradient_tolerance = 1e-8;
-//    options.function_tolerance = 1e-8;
     options.linear_solver_type = ceres::SPARSE_NORMAL_CHOLESKY;
     ceres::Solver::Summary summary;
     ceres::Solve(options, &problem, &summary);
