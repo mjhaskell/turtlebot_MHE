@@ -5,7 +5,7 @@
 template<typename T>
 T wrap(T angle)
 {
-    static double pi{3.14159};
+    static double pi{3.141592653589793};
     angle -= 2*pi * floor((angle+pi) * 0.5/pi);
     return angle;
 }
@@ -13,7 +13,7 @@ T wrap(T angle)
 struct PoseResidual
 {
 public:
-    PoseResidual(const Eigen::Vector3d &x, const Eigen::Matrix3d &omega): x_{x}
+    PoseResidual(const mhe::Pose &x, const Eigen::Matrix3d &omega): x_{x}
     {
         xi_ = omega.llt().matrixL();
     }
@@ -29,7 +29,7 @@ public:
         return true;
     }
 protected:
-    Eigen::Vector3d x_;
+    mhe::Pose x_;
     Eigen::Matrix3d xi_;
 
 };
@@ -67,7 +67,7 @@ protected:
 struct OdomResidual
 {
 public:
-    OdomResidual(const Eigen::Vector3d &x, const Eigen::Matrix3d &omega): x_{x}
+    OdomResidual(const mhe::Pose &x, const Eigen::Matrix3d &omega): x_{x}
     {
         xi_ = omega.llt().matrixL();
     }
@@ -85,7 +85,7 @@ public:
         return true;
     }
 protected:
-    Eigen::Vector3d x_;
+    mhe::Pose x_;
     Eigen::Matrix3d xi_;
 
 };
@@ -100,11 +100,10 @@ namespace mhe
 MHE::MHE()
 {
     // set default parameters
-    Omega_ = Eigen::Vector3d{1, 1, 0.5}.asDiagonal();
+    Omega_ = Pose{1, 1, 0.5}.asDiagonal();
     R_inv_ = Eigen::Vector2d{1/0.35, 1/0.07}.asDiagonal();
-    lms_ = Meas::Zero();
-    mu_ = Pose{2.5, -1.7, 0.175}; //These values from lab. Put these in the params file
-    pose_hist_.push_back(mu_);
+    lms_.setZero();
+    mu_.setZero();
 }
 
 MHE::~MHE()
@@ -112,9 +111,13 @@ MHE::~MHE()
     writeFile();
 }
 
-void MHE::setParams(const Eigen::Vector3d &omega, double sig_r, double sig_phi)
+void MHE::setParams(const Pose& mu0, const Pose& omega, const Pose& slew, double sig_r, double sig_phi)
 {
+    mu_ = mu0;
+    pose_hist_.push_back(mu_);
+
     Omega_ = omega.asDiagonal();
+    S_ = slew.asDiagonal();
     R_inv_ = Eigen::Vector2d{1/(sig_r*sig_r),1/(sig_phi*sig_phi)}.asDiagonal();
 }
 
@@ -157,10 +160,9 @@ void MHE::optimize()
 
     //set up odometry residuals
     i = std::max(0, int(odom_hist_.size() - TIME_HORIZON));
-    Eigen::Matrix3d Om = Eigen::Vector3d{1e3, 1e3, 5e2}.asDiagonal();
     for(i; i < odom_hist_.size(); ++i)
     {
-        OdomCostFunction * cost_function{new OdomCostFunction(new OdomResidual(odom_hist_[i], Om))};
+        OdomCostFunction * cost_function{new OdomCostFunction(new OdomResidual(odom_hist_[i], S_))};
         problem.AddResidualBlock(cost_function, NULL, pose_hist_[i].data(), pose_hist_[i+1].data());
     }
 

@@ -20,6 +20,7 @@ MHENode::MHENode() :
     id2idx_[248] = 8;
 
     lm_init_[5] = false;
+    lm_init_[25] = false;
     lm_init_[55] = false;
     lm_init_[64] = false;
     lm_init_[76] = false;
@@ -27,20 +28,30 @@ MHENode::MHENode() :
     lm_init_[121] = false;
     lm_init_[245] = false;
     lm_init_[248] = false;
-    lm_init_[25] = false;
 
     bool load_successful{true};
-    double x{10}, y{10}, theta{5}, sig_r{0.1}, sig_phi{0.01};
+    double x0{0}, y0{0}, theta0{0};
+    double x{10}, y{10}, theta{5};
+    double sig_r{0.1}, sig_phi{0.01};
+    double sx{1}, sy{1}, st{1};
+    load_successful *= nh_private_.getParam("x0", x0);
+    load_successful *= nh_private_.getParam("y0", y0);
+    load_successful *= nh_private_.getParam("theta0", theta0);
     load_successful *= nh_private_.getParam("Omega_x", x);
     load_successful *= nh_private_.getParam("Omega_y", y);
     load_successful *= nh_private_.getParam("Omega_theta", theta);
     load_successful *= nh_private_.getParam("sigma_r", sig_r);
     load_successful *= nh_private_.getParam("sigma_phi", sig_phi);
+    load_successful *= nh_private_.getParam("slew_x", sx);
+    load_successful *= nh_private_.getParam("slew_y", sy);
+    load_successful *= nh_private_.getParam("slew_theta", st);
     if (!load_successful)
         ROS_WARN("Failed to load params.");
 
-    Eigen::Vector3d Omega{x,y,theta};
-    estimator_.setParams(Omega, sig_r, sig_phi);
+    mhe::Pose pose0{x0, y0, theta0};
+    mhe::Pose Omega{x, y, theta};
+    mhe::Pose Slew{sx, sy, st};
+    estimator_.setParams(pose0, Omega, Slew, sig_r, sig_phi);
 
     meas_sub_ = nh_.subscribe("aruco/measurements", 1, &MHENode::measCallback, this);
     odom_sub_ = nh_.subscribe("odom", 1, &MHENode::odomCallback, this);
@@ -63,20 +74,14 @@ MHENode::~MHENode()
 
 void MHENode::measCallback(const aruco_localization::MarkerMeasurementArrayConstPtr &msg)
 {
-//    for (int i{0}; i < TIME_HORIZON-1; ++i)
-//        z_idx_.row(i) = z_idx_.row(i+1);
-//    z_idx_.row(TIME_HORIZON-1).setZero();
-
     z_cur_.setZero();
     last_idx_.setZero();
     for (auto const& pose : msg->poses)
     {
         int idx{id2idx_[pose.aruco_id]};
-//        z_idx_(TIME_HORIZON-1, idx) = true;
         last_idx_(idx) = true;
         mhe::Pose pt{pose.position.x, pose.position.y, pose.position.z};
         z_cur_.col(idx) << pt.norm() * 10 , -atan2(pt(0), pt(2));
-//        z_cur_.col(idx) << pt(2) * 11 , -atan2(pt(0), pt(2));
     }
 }
 

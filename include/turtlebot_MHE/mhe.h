@@ -32,7 +32,7 @@ class MHE
 public:
     MHE();
     virtual ~MHE();
-    void setParams(const Eigen::Vector3d& omega, double sig_r, double sig_phi);
+    void setParams(const Pose& mu0, const Pose& omega, const Pose& slew, double sig_r, double sig_phi);
     Pose propagateState(const Pose& state, const Input& u, double dt);
     void update(const Pose& mu, const Meas& z, const Zidx& idx, const Input& u, double dt);
     void optimize();
@@ -48,6 +48,7 @@ private:
     Pose mu_;
     Eigen::Matrix2d R_inv_;
     Eigen::Matrix3d Omega_;
+    Eigen::Matrix3d S_;
 };
 
 } // namespace mhe
