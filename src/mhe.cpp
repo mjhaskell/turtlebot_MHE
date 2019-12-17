@@ -151,20 +151,20 @@ void MHE::optimize()
 
     //set up position residuals
     int i = std::max(0, int(pose_hist_.size() - TIME_HORIZON));
-//    for(i; i < pose_hist_.size(); ++i)
-//    {
-//        PoseCostFunction *cost_function{new PoseCostFunction(new PoseResidual(pose_hist_[i], Omega_))};
-//        problem.AddResidualBlock(cost_function, NULL, pose_hist_[i].data());
-//    }
+    for(i; i < pose_hist_.size(); ++i)
+    {
+        PoseCostFunction *cost_function{new PoseCostFunction(new PoseResidual(pose_hist_[i], Omega_))};
+        problem.AddResidualBlock(cost_function, NULL, pose_hist_[i].data());
+    }
 
-//    //set up odometry residuals
-//    i = std::max(0, int(odom_hist_.size() - TIME_HORIZON));
-//    Eigen::Matrix3d Om = Eigen::Vector3d{1e3, 1e3, 5e2}.asDiagonal();
-//    for(i; i < odom_hist_.size(); ++i)
-//    {
-//        OdomCostFunction * cost_function{new OdomCostFunction(new OdomResidual(odom_hist_[i], Om))};
-//        problem.AddResidualBlock(cost_function, NULL, pose_hist_[i].data(), pose_hist_[i+1].data());
-//    }
+    //set up odometry residuals
+    i = std::max(0, int(odom_hist_.size() - TIME_HORIZON));
+    Eigen::Matrix3d Om = Eigen::Vector3d{5e3, 5e3, 1e3}.asDiagonal(); //1e3, 1e3, 5e2
+    for(i; i < odom_hist_.size(); ++i)
+    {
+        OdomCostFunction * cost_function{new OdomCostFunction(new OdomResidual(odom_hist_[i], Om))};
+        problem.AddResidualBlock(cost_function, NULL, pose_hist_[i].data(), pose_hist_[i+1].data());
+    }
 
     //set up measurement residuals
     i = std::max(0, int(z_hist_.size() - TIME_HORIZON));
@@ -195,6 +195,7 @@ void MHE::optimize()
     options.linear_solver_type = ceres::SPARSE_NORMAL_CHOLESKY;
     ceres::Solver::Summary summary;
     ceres::Solve(options, &problem, &summary);
+    mu_ = pose_hist_[pose_hist_.size()-1];  //reset our propagation component
 }
 
 void MHE::initializeLandmark(int index, const Eigen::Vector2d &lm)
