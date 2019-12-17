@@ -151,33 +151,33 @@ void MHE::optimize()
 
     //set up position residuals
     int i = std::max(0, int(pose_hist_.size() - TIME_HORIZON));
-    for(i; i < pose_hist_.size(); ++i)
-    {
-        PoseCostFunction *cost_function{new PoseCostFunction(new PoseResidual(pose_hist_[i], Omega_))};
-        problem.AddResidualBlock(cost_function, NULL, pose_hist_[i].data());
-    }
+//    for(i; i < pose_hist_.size(); ++i)
+//    {
+//        PoseCostFunction *cost_function{new PoseCostFunction(new PoseResidual(pose_hist_[i], Omega_))};
+//        problem.AddResidualBlock(cost_function, NULL, pose_hist_[i].data());
+//    }
 
 //    //set up odometry residuals
 //    i = std::max(0, int(odom_hist_.size() - TIME_HORIZON));
-//    Eigen::Matrix3d Om = Eigen::Vector3d{1e1, 1e1, 5e-1}.asDiagonal();
+//    Eigen::Matrix3d Om = Eigen::Vector3d{1e3, 1e3, 5e2}.asDiagonal();
 //    for(i; i < odom_hist_.size(); ++i)
 //    {
-//        OdomCostFunction * cost_function{new OdomCostFunction(new OdomResidual(odom_hist_[i], Omega_))};
+//        OdomCostFunction * cost_function{new OdomCostFunction(new OdomResidual(odom_hist_[i], Om))};
 //        problem.AddResidualBlock(cost_function, NULL, pose_hist_[i].data(), pose_hist_[i+1].data());
 //    }
 
     //set up measurement residuals
     i = std::max(0, int(z_hist_.size() - TIME_HORIZON));
     int counter = 0;
-    for(i; i < z_hist_.size(); ++i) // May need nested for loops for this one. One for the index and then one for each measurement at that index
+    if(i == 0)
+        counter = TIME_HORIZON - z_hist_.size();
+    for(i; i < z_hist_.size(); ++i)
     {
         for(int j{0}; j < NUM_LANDMARKS; ++j)
         {
 //            if(z_ind_(TIME_HORIZON - counter - 1,j))
             if(z_ind_(counter,j))
             {
-//                if(z_hist_[i].col(j)(0) == 0.0 || z_hist_[i].col(j)(1) == 0.0)
-//                    int debug =  1;
                 //Need the true landmark locations to be stored somewhere
                 MeasurementCostFunction *cost_function{new MeasurementCostFunction(new MeasurementResidual(z_hist_[i].col(j), lms_.col(j), R_inv_))};
                 problem.AddResidualBlock(cost_function, NULL, pose_hist_[i+1].data());
@@ -190,8 +190,8 @@ void MHE::optimize()
     ceres::Solver::Options options;
     options.minimizer_progress_to_stdout = false;
     options.max_num_iterations = 50;
-    options.gradient_tolerance = 1e-8;
-    options.function_tolerance = 1e-8;
+//    options.gradient_tolerance = 1e-8;
+//    options.function_tolerance = 1e-8;
     options.linear_solver_type = ceres::SPARSE_NORMAL_CHOLESKY;
     ceres::Solver::Summary summary;
     ceres::Solve(options, &problem, &summary);
